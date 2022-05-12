@@ -1,9 +1,13 @@
-const database = require('../models')
+// const database = require('../models')
+// const Sequelize = require('sequelize')
+
+const { PessoasServices } = require('../services')
+const pessoasServices = new PessoasServices()
 
 class PessoaController {
   static async pegaPessoasAtivas(req, res) {
     try {
-      const pessoasAtivas = await database.Pessoas.findAll()
+      const pessoasAtivas = await pessoasServices.pegaRegistrosAtivos()
       return res.status(200).json(pessoasAtivas)
     } catch (error) {
       return res.status(500).json(error.message)
@@ -12,7 +16,7 @@ class PessoaController {
 
   static async pegaTodasAsPessoas(req, res) {
     try {
-      const todasAsPessoas = await database.Pessoas.scope('todos').findAll()
+      const todasAsPessoas = await pessoasServices.pegaTodosOsRegistros()
       return res.status(200).json(todasAsPessoas)
     } catch (error) {
       return res.status(500).json(error.message)
@@ -149,6 +153,35 @@ class PessoaController {
         order: [['estudante_id', 'DESC']]
       })
       return res.status(200).json(todasAsMatriculas)
+    } catch (error) {
+      return res.status(500).json(error.message)
+    }
+  }
+
+  static async pegaTurmasLotadas(req, res) {
+    const lotacaoTurma = 2
+    try {
+      const turmasLotadas = await database.Matriculas.findAndCountAll({
+        where: {
+          status: 'confirmado'
+        },
+        attributes: ['turma_id'],
+        group: ['turma_id'],
+        having: Sequelize.literal(`count(turma_id) >= ${lotacaoTurma}`)
+      })
+      return res.status(200).json(turmasLotadas)
+    } catch (error) {
+      return res.status(500).json(error.message)
+    }
+  }
+
+  static async cancelaPessoa(req, res) {
+    const { estudanteId } = req.params
+    try {
+      await pessoasServices.cancelaPessoaEMatriculas(Number(estudanteId))
+      return res.status(200).json({
+        message: `matriculas ref. estudante ${estudanteId} canceladas`
+      })
     } catch (error) {
       return res.status(500).json(error.message)
     }

@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           funcaoValidadora: function (dado) {
             if (dado.length < 3)
-              throw new Error('O campo nome deve ter mais de 3 caracteres')
+              throw new Error('o campo nome deve ter mais de 3 caracteres')
           }
         }
       },
@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         validate: {
           isEmail: {
             args: true,
-            msg: 'Dados do tipo e-mail inválido'
+            msg: 'dado do tipo e-mail inválido'
           }
         }
       },
